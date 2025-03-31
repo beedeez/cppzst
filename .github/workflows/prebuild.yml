@@ -1,0 +1,38 @@
+name: Prebuild Binaries
+
+on:
+  push:
+    branches:
+      - main
+      - develop  # add any additional branches as needed
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        node-version: [18]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run prebuild
+        run: npm run prebuild
+        env:
+          NODE_ENV: production
+
+      - name: Upload prebuild artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: prebuild-${{ matrix.os }}-node${{ matrix.node-version }}
+          path: prebuilds/  # Adjust this path if your prebuild outputs are located elsewhere
